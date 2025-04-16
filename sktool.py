@@ -5,6 +5,9 @@ import os
 import time
 import requests
 
+from keep_alive import keep_alive
+keep_alive()
+
 def generate_sk_key_body(length=99):
     chars = string.ascii_letters + string.digits
     return ''.join(random.choices(chars, k=length))
