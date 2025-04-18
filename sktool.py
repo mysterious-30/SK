@@ -5,9 +5,6 @@ import os
 import time
 import requests
 
-from keep_alive import keep_alive
-keep_alive()
-
 def generate_sk_key_body(length=99):
     chars = string.ascii_letters + string.digits
     return ''.join(random.choices(chars, k=length))
@@ -68,11 +65,6 @@ def check_sk_key(key):
         print(f"❌ Error checking {key}: {e}")
         return False
 
-def save_live_keys_json(live_keys, filename="sklive.json"):
-    data = [{"sk_key": k, "status": "Live"} for k in live_keys]
-    with open(filename, "w") as f:
-        json.dump(data, f, indent=4)
-
 # Header
 print("━━━━━━━━━━━━━━━━━━━━━━━━")
 print("      SK Key Tool")
@@ -94,12 +86,14 @@ elif cmd == "check":
     all_keys = load_keys_from_txt()
     if not all_keys:
         exit()
-    live_keys = []
-    for k in all_keys:
-        if check_sk_key(k):
-            live_keys.append(k)
-    save_live_keys_json(live_keys)
-    print(f"\nTotal {len(live_keys)} LIVE keys saved to sklive.json")
+
+    for key in all_keys[:]:  # Create a copy to safely modify the original
+        if check_sk_key(key):
+            with open("live_keys.txt", "a") as live_file:
+                live_file.write(key + "\n")
+        else:
+            all_keys.remove(key)
+            save_keys_to_txt(all_keys)
 
 else:
     print("Unknown command! Use 'gen' or 'check'")
